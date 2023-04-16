@@ -3,12 +3,15 @@
 #include <time.h>
 #include <string.h>
 #include "image.h"
+#include <pthread.h>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image_write.h"
+
+int thread_count; 
 
 //An array of kernel matrices to be used for image convolution.  
 //The indexes of these match the enumeration from the header file. ie. algorithms[BLUR] returns the kernel corresponding to a box blur.
@@ -51,6 +54,20 @@ uint8_t getPixelValue(Image* srcImage,int x,int y,int bit,Matrix algorithm){
     return result;
 }
 
+void* convolute_pthread(void* part){
+    Image* my_image = (Image*)part;
+    int block = my_image->height/thread_count;
+    int first_row = my_image->height * block;
+    int last_row = (my_image->height + 1)*block - 1;
+
+    for (int i = first_row; i <= last_row; i++){
+        for (int j = 0; j < my_image->width; j++){
+            convolute(my_image->srcImage, my_image->destImage, my_image->algorithm);
+        }
+    }
+
+}
+
 //convolute:  Applies a kernel matrix to an image
 //Parameters: srcImage: The image being convoluted
 //            destImage: A pointer to a  pre-allocated (including space for the pixel array) structure to receive the convoluted image.  It should be the same size as srcImage
@@ -90,6 +107,7 @@ enum KernelTypes GetKernelType(char* type){
 //main:
 //argv is expected to take 2 arguments.  First is the source file name (can be jpg, png, bmp, tga).  Second is the lower case name of the algorithm.
 int main(int argc,char** argv){
+    pthread_t first_thread
     long t1,t2;
     t1=time(NULL);
 
