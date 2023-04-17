@@ -4,7 +4,6 @@
 #include <string.h>
 #include "image.h"
 #include <pthread.h>
-//#include <omp.h>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -132,16 +131,6 @@ int main(int argc,char** argv){
     destImage.width=srcImage.width;
     destImage.data=malloc(sizeof(uint8_t)*destImage.width*destImage.bpp*destImage.height);
     convolute(&srcImage,&destImage,algorithms[type]);
-
-    //For pthreads 
-    int num_threads = 4;
-    pthread_t threads[num_threads];
-    for (int i = 0; i < num_threads; i++){
-        pthread_create(&threads[i], NULL, convolute_pthread, &arg);
-    }
-    for (int i = 0; i < num_threads; i++){
-        pthread_join(threads[i], NULL);
-    }
 
     stbi_write_png("output.png",destImage.width,destImage.height,destImage.bpp,destImage.data,destImage.bpp*destImage.width);
     stbi_image_free(srcImage.data);

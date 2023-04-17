@@ -54,30 +54,18 @@ uint8_t getPixelValue(Image* srcImage,int x,int y,int bit,Matrix algorithm){
     return result;
 }
 
-void* convolute_pthread(void* part){
+void* convolute_pthread(void* rank){
     Image* image = (Image*)part;
+    int row,pix,bit,span;
+    Image* srcImage_thread = &srcImage;
+    Image* destImage_thread = &destImage;
+    int 
     for (int i=0; i < image->width; i++){
         for(int j=0; j < image->height; j++){
             convolute(*image->;
         }
     }
     return NULL
-}
-
-void convolute_openmp(Image* srcImage, Image* destImage, Matrix algorithm){
-    int row, pix, bit, span;
-    span = srcImage->bpp * srcImage->bpp;
-
-    # pragma omp parallel
-    for (row = 0; row < srcImage->height; row++){
-        for (int private_pix = 0; private_pix < srcImage->width; private_pix++){
-            for (int private_bit = 0; private_bit < srcImage->bpp; private_bit++){
-                destImage->data[Index(private_pix, row, srcImage->width, private_bit, srcImage->bpp)] = getPixelValue(srcImage, private_pix, row, private_bit, algorithm);
-            }
-
-        }
-
-    }
 }
 
 //convolute:  Applies a kernel matrix to an image
