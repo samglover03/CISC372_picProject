@@ -4,7 +4,6 @@
 #include <string.h>
 #include "image.h"
 #include <pthread.h>
-//#include <omp.h>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -53,6 +52,16 @@ uint8_t getPixelValue(Image* srcImage,int x,int y,int bit,Matrix algorithm){
         algorithm[2][1]*srcImage->data[Index(x,py,srcImage->width,bit,srcImage->bpp)]+
         algorithm[2][2]*srcImage->data[Index(px,py,srcImage->width,bit,srcImage->bpp)];
     return result;
+}
+
+void* convolute_pthread(void* part){
+    Image* image = (Image*)part;
+    for (int i=0; i < image->width; i++){
+        for(int j=0; j < image->height; j++){
+            convolute(*image->;
+        }
+    }
+    return NULL
 }
 
 void convolute_openmp(Image* srcImage, Image* destImage, Matrix algorithm){
