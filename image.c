@@ -3,15 +3,12 @@
 #include <time.h>
 #include <string.h>
 #include "image.h"
-#include <pthread.h>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image_write.h"
-
-int thread_count; 
 
 //An array of kernel matrices to be used for image convolution.  
 //The indexes of these match the enumeration from the header file. ie. algorithms[BLUR] returns the kernel corresponding to a box blur.
@@ -52,22 +49,6 @@ uint8_t getPixelValue(Image* srcImage,int x,int y,int bit,Matrix algorithm){
         algorithm[2][1]*srcImage->data[Index(x,py,srcImage->width,bit,srcImage->bpp)]+
         algorithm[2][2]*srcImage->data[Index(px,py,srcImage->width,bit,srcImage->bpp)];
     return result;
-}
-
-void convolute_openmp(Image* srcImage, Image* destImage, Matrix algorithm){
-    int row, pix, bit, span;
-    span = srcImage->bpp * srcImage->bpp;
-
-    # pragma omp parallel
-    for (row = 0; row < srcImage->height; row++){
-        for (int private_pix = 0; private_pix < srcImage->width; private_pix++){
-            for (int private_bit = 0; private_bit < srcImage->bpp; private_bit++){
-                destImage->data[Index(private_pix, row, srcImage->width, private_bit, srcImage->bpp)] = getPixelValue(srcImage, private_pix, row, private_bit, algorithm);
-            }
-
-        }
-
-    }
 }
 
 //convolute:  Applies a kernel matrix to an image
