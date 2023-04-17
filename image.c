@@ -4,7 +4,7 @@
 #include <string.h>
 #include "image.h"
 #include <pthread.h>
-#include <omp.h>
+//#include <omp.h>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -56,17 +56,14 @@ uint8_t getPixelValue(Image* srcImage,int x,int y,int bit,Matrix algorithm){
 }
 
 void* convolute_pthread(void* part){
-    Image* my_image = (Image*)part;
-    int block = my_image->height/thread_count;
-    int first_row = my_image->height * block;
-    int last_row = (my_image->height + 1)*block - 1;
-
-    for (int i = first_row; i <= last_row; i++){
-        for (int j = 0; j < my_image->width; j++){
-            convolute(my_image->srcImage, my_image->destImage, my_image->algorithm);
+    int row = *(int*)part;
+    int pix, bit;
+    for (pix=0; pix<srcImage->width; pix++){
+        for(bit=0; bit<srcImage->bpp; bit++){
+            destImage->data[Index(pix,row,srcImage->width,bit,srcImage->bpp)]=getPixelValue(srcImage,pix,row,bit,algorithm);
         }
     }
-
+    pthread_exit(NULL);
 }
 
 void convolute_openmp(Image* srcImage, Image* destImage, Matrix algorithm){
@@ -145,7 +142,18 @@ int main(int argc,char** argv){
     destImage.height=srcImage.height;
     destImage.width=srcImage.width;
     destImage.data=malloc(sizeof(uint8_t)*destImage.width*destImage.bpp*destImage.height);
-    convolute_openmp(&srcImage,&destImage,algorithms[type]);
+    convolute(&srcImage,&destImage,algorithms[type]);
+
+    //For pthreads 
+    int num_threads = 4;
+    pthread_t threads[num_threads];
+    for (int i = 0; i < num_threads; i++){
+        pthread_create(&threads[i], NULL, convolute_pthread, &arg)
+    }
+    for (int i = 0; i < num_threads; i++){
+        pthread_join(threads[i], NULL);
+    }
+
     stbi_write_png("output.png",destImage.width,destImage.height,destImage.bpp,destImage.data,destImage.bpp*destImage.width);
     stbi_image_free(srcImage.data);
     
