@@ -1,0 +1,17 @@
+Script started on Tue 18 Apr 2023 07:06:28 PM EDT
+]0;sjglover@login00.darwin:~/CISC372_picProject[?1034h[(ea-cisc372:sjglover)@login00.darwin CISC372_picProject]$ salloc --ntasks=1 --c pus-per-task=4 --partition=standard
+salloc: Granted job allocation 3984762
+salloc: Waiting for resource configuration
+salloc: Nodes r1n17 are ready for job
+]0;sjglover@r1n17.darwin:~/CISC372_picProject[?1034h[sjglover@r1n17 CISC372_picProject]$ export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK [A[sjglover@r1n17 CISC372_picProject]$ export OMP_NUM_THREADS=$SLURM_CPUS_PER_TAS[KK
+]0;sjglover@r1n17.darwin:~/CISC372_picProject[sjglover@r1n17 CISC372_picProject]$ srun ./imagep pic1.jpg edge
+Took 0 seconds
+]0;sjglover@r1n17.darwin:~/CISC372_picProject[sjglover@r1n17 CISC372_picProject]$ srun ./imageomp pic1.jpg edge
+Took 0 seconds
+]0;sjglover@r1n17.darwin:~/CISC372_picProject[sjglover@r1n17 CISC372_picProject]$ exit
+logout
+salloc: Relinquishing job allocation 3984762
+]0;sjglover@login00.darwin:~/CISC372_picProject[(ea-cisc372:sjglover)@login00.darwin CISC372_picProject]$ exit
+exit
+
+Script done on Tue 18 Apr 2023 07:07:43 PM EDT
